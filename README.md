@@ -114,6 +114,15 @@ If FluxLoops .NET helps you understand or debug Fluxor apps, please **leave a ra
 
 We actively prioritize requests from teams using Fluxor at scale on real Blazor codebases.
 
+## Planned features (v0.2.0)
+
+| Feature | Description |
+|---------|-------------|
+| **Export table to Excel** | Download the dependency table as `.xlsx` with the current project/feature/view filters applied; Excel **AutoFilter** on the header row |
+| **Export graph to PNG** | Save the D3 dependency graph as a PNG image for docs, PRs, and wikis |
+
+Detailed specs and acceptance criteria: [docs/planned-features.md](docs/planned-features.md)
+
 ## License
 
 MIT — Copyright (c) AryaCode Labs

@@ -5,6 +5,13 @@ All notable changes to **FluxLoops .NET** are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Planned
+
+- **Export dependency table to Excel** — `.xlsx` download with current table filters; header row with Excel AutoFilter ([spec](docs/planned-features.md#1-export-dependency-table-to-excel-xlsx))
+- **Export D3 graph to PNG** — save the force-directed graph as a PNG from the Graph tab ([spec](docs/planned-features.md#2-export-d3-graph-to-png))
+
 ## [0.1.0] - 2026-06-27
 
 ### Added
