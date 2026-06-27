@@ -2,7 +2,9 @@
 
 Visualize **Fluxor** dependency graphs for Blazor and .NET applications — Actions, Reducers, Effects, State, and Components in one interactive map.
 
-Built by [AryaCode Labs](https://github.com/AryaCodeLabs) as part of the DevL∞ps tool family (alongside LinkLoops, DI-Loops, and related analyzers).
+**Repository:** [github.com/aryacodelabs/fluxloops](https://github.com/aryacodelabs/fluxloops)
+
+Built by [AryaCode Labs](https://github.com/aryacodelabs) as part of the DevL∞ps tool family (alongside LinkLoops, DI-Loops, and related analyzers).
 
 ## Features
 
@@ -74,6 +76,8 @@ Built by [AryaCode Labs](https://github.com/AryaCodeLabs) as part of the DevL∞
 ## Development
 
 ```bash
+git clone https://github.com/aryacodelabs/fluxloops.git
+cd fluxloops
 npm install
 npm run build
 npm run build:roslyn
@@ -102,7 +106,7 @@ fluxloops/
 
 If FluxLoops .NET helps you understand or debug Fluxor apps, please **leave a rating and review** on the [Visual Studio Marketplace](https://marketplace.visualstudio.com) — it helps other Blazor developers discover the extension and guides what we build next.
 
-**Want a new feature?** Open an issue or reach out to AryaCode Labs with:
+**Want a new feature?** [Open an issue](https://github.com/aryacodelabs/fluxloops/issues) on GitHub or reach out to AryaCode Labs with:
 
 - What you're trying to understand in your Fluxor graph
 - Screenshots or sample project structure (if possible)

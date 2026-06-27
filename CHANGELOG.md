@@ -38,4 +38,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Extension no longer runs a full solution scan automatically on startup; scan runs on user command or save
 - Improved scan error messages with target path details
 
-[0.1.0]: https://github.com/AryaCodeLabs/fluxloops/releases/tag/v0.1.0
+[0.1.0]: https://github.com/aryacodelabs/fluxloops/releases/tag/v0.1.0
