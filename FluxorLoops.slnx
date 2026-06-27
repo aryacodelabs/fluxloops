@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/test/">
+    <Project Path="test/FluxorLoops.Analyzer.Tests/FluxorLoops.Analyzer.Tests.csproj" />
+  </Folder>
+  <Folder Name="/test/fixtures/">
+    <Project Path="test/fixtures/SampleFluxorApp/SampleFluxorApp.csproj" />
+  </Folder>
+  <Folder Name="/tools/">
+    <Project Path="tools/FluxorLoops.Analyzer/FluxorLoops.Analyzer.csproj" />
+    <Project Path="tools/FluxorLoops.Cli/FluxorLoops.Cli.csproj" />
+    <Project Path="tools/FluxorLoops.RoslynHost/FluxorLoops.RoslynHost.csproj" />
+  </Folder>
+</Solution>

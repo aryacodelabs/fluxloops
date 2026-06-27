@@ -1,0 +1,24 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "fluxloops: build extension",
+      "type": "npm",
+      "script": "build",
+      "problemMatcher": ["$tsc"],
+      "group": "build"
+    },
+    {
+      "label": "fluxloops: build roslyn",
+      "type": "shell",
+      "command": "dotnet build tools/FluxorLoops.RoslynHost/FluxorLoops.RoslynHost.csproj -c Debug",
+      "problemMatcher": "$msCompile",
+      "group": "build"
+    },
+    {
+      "label": "fluxloops: build all",
+      "dependsOn": ["fluxloops: build roslyn", "fluxloops: build extension"],
+      "problemMatcher": []
+    }
+  ]
+}

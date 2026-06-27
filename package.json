@@ -1,0 +1,122 @@
+{
+  "name": "fluxloops",
+  "displayName": "FluxLoops .NET",
+  "icon": "media/icon.png",
+  "description": "Visualize Fluxor dependency graphs for Blazor applications — Actions, Reducers, Effects, State, and Components.",
+  "version": "0.1.0",
+  "author": "AryaCode Labs",
+  "publisher": "AryaCodeLabs",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/aryacodelabs/fluxloops.git"
+  },
+  "homepage": "https://github.com/aryacodelabs/fluxloops#readme",
+  "bugs": {
+    "url": "https://github.com/aryacodelabs/fluxloops/issues"
+  },
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": ["Other", "Visualization", "Programming Languages"],
+  "keywords": ["dotnet", "csharp", "fluxor", "blazor", "state-management"],
+  "activationEvents": [
+    "onStartupFinished",
+    "workspaceContains:**/*.csproj",
+    "workspaceContains:**/*.sln",
+    "onLanguage:csharp"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "fluxLoops.map",
+        "title": "Map Fluxor Graph",
+        "category": "FluxLoops"
+      },
+      {
+        "command": "fluxLoops.showGraph",
+        "title": "Show Fluxor Graph",
+        "category": "FluxLoops"
+      },
+      {
+        "command": "fluxLoops.refresh",
+        "title": "Refresh Fluxor Index",
+        "category": "FluxLoops",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "fluxLoops.mapProject",
+        "title": "Generate Fluxor Graph",
+        "category": "FluxLoops"
+      }
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "fluxLoops.mapProject",
+          "when": "resourceExtname == .csproj",
+          "group": "navigation@99"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "FluxLoops",
+      "properties": {
+        "fluxLoops.scanOnSave": {
+          "type": "boolean",
+          "default": true,
+          "description": "Re-scan changed C# and Razor files on save."
+        },
+        "fluxLoops.projectPath": {
+          "type": "string",
+          "default": "",
+          "description": "Limit scanning to this project or solution folder (absolute or workspace-relative)."
+        },
+        "fluxLoops.scanEntireSolution": {
+          "type": "boolean",
+          "default": true,
+          "description": "When a solution file is found, scan the entire solution folder."
+        },
+        "fluxLoops.roslynHostPath": {
+          "type": "string",
+          "default": "",
+          "description": "Override path to the Roslyn analysis host binary."
+        },
+        "fluxLoops.enableWebview": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable the interactive D3 dependency graph webview."
+        },
+        "fluxLoops.excludeTestProjects": {
+          "type": "boolean",
+          "default": true,
+          "description": "Exclude test project folders from scanning."
+        },
+        "fluxLoops.scanTimeoutSeconds": {
+          "type": "number",
+          "default": 600,
+          "minimum": 60,
+          "description": "Maximum seconds to wait for a Roslyn scan before timing out."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run build",
+    "build": "node esbuild.mjs && node scripts/copy-d3.mjs",
+    "watch": "node esbuild.mjs --watch",
+    "build:roslyn": "dotnet build tools/FluxorLoops.RoslynHost/FluxorLoops.RoslynHost.csproj -c Release",
+    "test": "vitest run",
+    "package": "vsce package --no-dependencies"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^3.2.1",
+    "esbuild": "^0.23.0",
+    "typescript": "^5.5.4",
+    "vitest": "^2.0.5",
+    "d3": "^7.9.0"
+  }
+}

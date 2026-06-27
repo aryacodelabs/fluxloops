@@ -1,0 +1,11 @@
+@inject IState<CounterState> CounterState
+@inject IDispatcher Dispatcher
+
+<button @onclick="Increment">Increment</button>
+
+@code {
+    private void Increment()
+    {
+        Dispatcher.Dispatch(new IncrementCounterAction());
+    }
+}

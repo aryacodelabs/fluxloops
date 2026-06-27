@@ -1,0 +1,17 @@
+node_modules/
+dist/
+out/
+bin/
+obj/
+*.vsix
+.DS_Store
+*.log
+coverage/
+.vscode-test/
+terminals/
+agent-tools/
+diag-scan.*
+diag.err
+scan-output.json
+Join-Path
+media/webview/*.map
