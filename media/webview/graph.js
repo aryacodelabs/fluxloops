@@ -479,6 +479,8 @@
     activePanel = panel;
     tabGraph.classList.toggle("active", panel === "graph");
     tabTable.classList.toggle("active", panel === "table");
+    tabGraph.setAttribute("aria-selected", panel === "graph" ? "true" : "false");
+    tabTable.setAttribute("aria-selected", panel === "table" ? "true" : "false");
     graphPanel.classList.toggle("hidden", panel !== "graph");
     tablePanel.classList.toggle("hidden", panel !== "table");
     searchInput.style.display = panel === "graph" ? "" : "none";

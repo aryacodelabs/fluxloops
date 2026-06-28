@@ -27,6 +27,21 @@ body {
   cursor: pointer;
 }
 
+.view-tab.icon-tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  min-height: 28px;
+  padding: 4px 8px;
+}
+
+.view-tab .tab-icon {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
 .view-tab.active {
   background: var(--vscode-button-background, #0e639c);
   color: var(--vscode-button-foreground, #fff);

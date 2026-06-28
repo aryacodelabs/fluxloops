@@ -197,9 +197,20 @@ export class D3GraphWebviewPanel implements vscode.Disposable {
 </head>
 <body>
   <div id="toolbar">
-    <div id="viewTabs" role="tablist">
-      <button type="button" id="tabGraph" class="view-tab active" data-panel="graph">Graph</button>
-      <button type="button" id="tabTable" class="view-tab" data-panel="table">Table</button>
+    <div id="viewTabs" role="tablist" aria-label="View mode">
+      <button type="button" id="tabGraph" class="view-tab icon-tab active" data-panel="graph" role="tab" aria-selected="true" aria-label="Graph" title="Graph">
+        <svg class="tab-icon" viewBox="0 0 16 16" aria-hidden="true">
+          <circle cx="3.5" cy="12.5" r="1.75" fill="currentColor"></circle>
+          <circle cx="12.5" cy="12.5" r="1.75" fill="currentColor"></circle>
+          <circle cx="8" cy="3.5" r="1.75" fill="currentColor"></circle>
+          <path d="M4.8 11.1 L7.2 5.1 M11.2 11.1 L8.8 5.1" stroke="currentColor" stroke-width="1.2" fill="none"></path>
+        </svg>
+      </button>
+      <button type="button" id="tabTable" class="view-tab icon-tab" data-panel="table" role="tab" aria-selected="false" aria-label="Table" title="Table">
+        <svg class="tab-icon" viewBox="0 0 16 16" aria-hidden="true">
+          <path fill-rule="evenodd" clip-rule="evenodd" d="M0 1h16v14H0V1zm1 1v12h14V2H1zm1 1h5v3H2V3zm6 0h5v3H8V3zM2 7h5v3H2V7zm6 0h5v3H8V7zm-6 4h5v3H2v-3zm6 0h5v3H8v-3z" fill="currentColor"></path>
+        </svg>
+      </button>
     </div>
     <label>Project
       <select id="projectSelect">
