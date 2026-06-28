@@ -33,6 +33,27 @@ body {
   border-color: var(--vscode-button-background, #0e639c);
 }
 
+.export-btn {
+  background: var(--vscode-button-secondaryBackground, #3a3d41);
+  color: var(--vscode-button-secondaryForeground, #ccc);
+  border: 1px solid var(--vscode-panel-border, #555);
+  padding: 4px 12px;
+  cursor: pointer;
+}
+
+.export-btn:hover:not(:disabled) {
+  background: var(--vscode-button-secondaryHoverBackground, #45494e);
+}
+
+.export-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.export-btn.hidden {
+  display: none;
+}
+
 #toolbar select,
 #toolbar input {
   background: var(--vscode-input-background, #3c3c3c);

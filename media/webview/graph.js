@@ -76,6 +76,18 @@
   }
 
   // src/webview/dependencyTable.ts
+  function toExportRow(row) {
+    return {
+      project: row.project,
+      feature: row.feature,
+      fromKind: row.fromKind,
+      fromName: row.fromName,
+      relationship: row.relationship,
+      toKind: row.toKind,
+      toName: row.toName,
+      filePath: row.filePath
+    };
+  }
   var EMPTY_COLUMN_FILTERS = {
     project: "",
     feature: "",
@@ -168,6 +180,84 @@
       return true;
     }
     return value.toLowerCase().includes(term);
+  }
+
+  // src/webview/graphExport.ts
+  var INLINE_STYLE_PROPS = [
+    "fill",
+    "stroke",
+    "stroke-width",
+    "stroke-opacity",
+    "stroke-dasharray",
+    "font-size",
+    "font-family",
+    "font-weight",
+    "opacity",
+    "fill-opacity",
+    "text-anchor"
+  ];
+  var PNG_SCALE = 2;
+  async function exportSvgToPngBase64(svgElement) {
+    const rect = svgElement.getBoundingClientRect();
+    const width = Math.max(1, Math.round(rect.width));
+    const height = Math.max(1, Math.round(rect.height));
+    const clone = svgElement.cloneNode(true);
+    clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+    clone.setAttribute("width", String(width));
+    clone.setAttribute("height", String(height));
+    const background = getComputedStyle(document.body).backgroundColor || "#1e1e1e";
+    const backgroundRect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    backgroundRect.setAttribute("width", "100%");
+    backgroundRect.setAttribute("height", "100%");
+    backgroundRect.setAttribute("fill", background);
+    clone.insertBefore(backgroundRect, clone.firstChild);
+    inlineSvgStyles(svgElement, clone);
+    const svgString = new XMLSerializer().serializeToString(clone);
+    const svgUrl = URL.createObjectURL(new Blob([svgString], { type: "image/svg+xml;charset=utf-8" }));
+    try {
+      const image = await loadImage(svgUrl);
+      const canvas = document.createElement("canvas");
+      canvas.width = width * PNG_SCALE;
+      canvas.height = height * PNG_SCALE;
+      const context = canvas.getContext("2d");
+      if (!context) {
+        return void 0;
+      }
+      context.scale(PNG_SCALE, PNG_SCALE);
+      context.drawImage(image, 0, 0, width, height);
+      const dataUrl = canvas.toDataURL("image/png");
+      const commaIndex = dataUrl.indexOf(",");
+      return commaIndex >= 0 ? dataUrl.slice(commaIndex + 1) : void 0;
+    } finally {
+      URL.revokeObjectURL(svgUrl);
+    }
+  }
+  function inlineSvgStyles(sourceRoot, targetRoot) {
+    const sourceElements = [sourceRoot, ...Array.from(sourceRoot.querySelectorAll("*"))];
+    const targetElements = [targetRoot, ...Array.from(targetRoot.querySelectorAll("*"))];
+    for (let index = 0; index < sourceElements.length; index++) {
+      const source = sourceElements[index];
+      const target = targetElements[index];
+      if (!source || !target) {
+        continue;
+      }
+      const computed = getComputedStyle(source);
+      const style = INLINE_STYLE_PROPS.map((prop) => {
+        const value = computed.getPropertyValue(prop);
+        return value ? `${prop}:${value}` : "";
+      }).filter(Boolean).join(";");
+      if (style) {
+        target.setAttribute("style", style);
+      }
+    }
+  }
+  function loadImage(url) {
+    return new Promise((resolve, reject) => {
+      const image = new Image();
+      image.onload = () => resolve(image);
+      image.onerror = () => reject(new Error("Failed to render SVG for PNG export."));
+      image.src = url;
+    });
   }
 
   // src/webview/featureFocus.ts
@@ -330,6 +420,8 @@
   var filterInputs = Array.from(
     document.querySelectorAll("#dependencyTable .col-filter")
   );
+  var exportGraphBtn = document.getElementById("exportGraphBtn");
+  var exportTableBtn = document.getElementById("exportTableBtn");
   viewSelect.addEventListener("change", () => {
     currentView = viewSelect.value;
     render();
@@ -351,6 +443,12 @@
   });
   tabGraph.addEventListener("click", () => setActivePanel("graph"));
   tabTable.addEventListener("click", () => setActivePanel("table"));
+  exportGraphBtn.addEventListener("click", () => {
+    void handleExportGraphPng();
+  });
+  exportTableBtn.addEventListener("click", () => {
+    handleExportTable();
+  });
   for (const input of filterInputs) {
     input.addEventListener("input", () => {
       columnFilters = readColumnFilters();
@@ -384,6 +482,8 @@
     graphPanel.classList.toggle("hidden", panel !== "graph");
     tablePanel.classList.toggle("hidden", panel !== "table");
     searchInput.style.display = panel === "graph" ? "" : "none";
+    exportGraphBtn.classList.toggle("hidden", panel !== "graph");
+    exportTableBtn.classList.toggle("hidden", panel !== "table");
   }
   function getProjectOptions() {
     return fullGraph.projects ?? listProjectOptions(fullGraph.nodes);
@@ -392,7 +492,7 @@
     renderTable();
     renderGraph();
   }
-  function renderTable() {
+  function getTableRowSets() {
     const projects = getProjectOptions();
     const { nodes, edges } = filterGraphData(false);
     const featureOptions = listFeatureOptions(fullGraph.nodes, currentProject, projects);
@@ -401,7 +501,10 @@
       ...columnFilters,
       project: currentProject ? "" : columnFilters.project
     };
-    const filtered = filterDependencyRows(rows, effectiveFilters);
+    return { all: rows, filtered: filterDependencyRows(rows, effectiveFilters) };
+  }
+  function renderTable() {
+    const { all: rows, filtered } = getTableRowSets();
     tableBody.replaceChildren();
     for (const row of filtered) {
       const tr = document.createElement("tr");
@@ -814,6 +917,73 @@
     if (node.x != null && node.y != null) {
       restingPositions.set(node.id, { x: node.x, y: node.y });
     }
+  }
+  function handleExportTable() {
+    const { filtered } = getTableRowSets();
+    if (filtered.length === 0) {
+      vscode.postMessage({ type: "exportEmpty", target: "table" });
+      return;
+    }
+    vscode.postMessage({
+      type: "exportTable",
+      rows: filtered.map(toExportRow),
+      suggestedFilename: buildDependenciesFilename()
+    });
+  }
+  async function handleExportGraphPng() {
+    const { nodes } = filterGraphData(true);
+    if (nodes.length === 0 || !svg) {
+      vscode.postMessage({ type: "exportEmpty", target: "graph" });
+      return;
+    }
+    exportGraphBtn.disabled = true;
+    try {
+      const svgElement = document.getElementById("graph");
+      if (!svgElement) {
+        vscode.postMessage({ type: "exportEmpty", target: "graph" });
+        return;
+      }
+      const pngBase64 = await exportSvgToPngBase64(svgElement);
+      if (!pngBase64) {
+        vscode.postMessage({ type: "exportError", target: "graph" });
+        return;
+      }
+      vscode.postMessage({
+        type: "exportGraphPng",
+        pngBase64,
+        suggestedFilename: buildGraphPngFilename()
+      });
+    } catch {
+      vscode.postMessage({ type: "exportError", target: "graph" });
+    } finally {
+      exportGraphBtn.disabled = false;
+    }
+  }
+  function buildDependenciesFilename() {
+    const projectLabel2 = currentProject ? projectSelect.selectedOptions[0]?.textContent ?? null : null;
+    return formatDependenciesFilename(projectLabel2);
+  }
+  function buildGraphPngFilename() {
+    const featureLabel = currentFeature ? featureSelect.selectedOptions[0]?.textContent ?? null : null;
+    return formatGraphPngFilename(featureLabel);
+  }
+  function formatDependenciesFilename(projectLabel2) {
+    const segment = sanitizeSegment(projectLabel2 ?? "all");
+    return `fluxloops-dependencies-${segment}-${formatDateStamp()}.xlsx`;
+  }
+  function formatGraphPngFilename(featureLabel) {
+    const segment = sanitizeSegment(featureLabel ?? "all");
+    return `fluxloops-graph-${segment}-${formatDateStamp()}.png`;
+  }
+  function sanitizeSegment(segment) {
+    const cleaned = segment.trim().replace(/[<>:"/\\|?*\x00-\x1f]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-").replace(/^-+|-+$/g, "").slice(0, 80);
+    return cleaned || "all";
+  }
+  function formatDateStamp(date = /* @__PURE__ */ new Date()) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
   }
 })();
 //# sourceMappingURL=graph.js.map

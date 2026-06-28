@@ -7,10 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Planned
+## [0.2.0] - 2026-06-28
 
-- **Export dependency table to Excel** — `.xlsx` download with current table filters; header row with Excel AutoFilter ([spec](docs/planned-features.md#1-export-dependency-table-to-excel-xlsx))
-- **Export D3 graph to PNG** — save the force-directed graph as a PNG from the Graph tab ([spec](docs/planned-features.md#2-export-d3-graph-to-png))
+### Added
+
+- **Export dependency table to Excel** — Export Excel button on the Table tab writes the current filtered rows to `.xlsx` with bold headers, frozen row 1, and Excel AutoFilter
+- **Export D3 graph to PNG** — Export PNG button on the Graph tab saves the current viewport (zoom, pan, and filters) at 2× resolution
 
 ## [0.1.0] - 2026-06-27
 
@@ -45,4 +47,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Extension no longer runs a full solution scan automatically on startup; scan runs on user command or save
 - Improved scan error messages with target path details
 
+[0.2.0]: https://github.com/aryacodelabs/fluxloops/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/aryacodelabs/fluxloops/releases/tag/v0.1.0

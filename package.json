@@ -3,7 +3,7 @@
   "displayName": "FluxLoops .NET",
   "icon": "media/icon.png",
   "description": "Visualize Fluxor dependency graphs for Blazor applications — Actions, Reducers, Effects, State, and Components.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": "AryaCode Labs",
   "publisher": "AryaCodeLabs",
   "license": "MIT",
@@ -109,6 +109,9 @@
     "build:roslyn": "dotnet build tools/FluxorLoops.RoslynHost/FluxorLoops.RoslynHost.csproj -c Release",
     "test": "vitest run",
     "package": "vsce package --no-dependencies"
+  },
+  "dependencies": {
+    "exceljs": "^4.4.0"
   },
   "devDependencies": {
     "@types/node": "^20.14.0",

@@ -2,8 +2,11 @@ import {
   buildDependencyRows,
   EMPTY_COLUMN_FILTERS,
   filterDependencyRows,
+  toExportRow,
   type ColumnFilters,
+  type DependencyRow,
 } from './dependencyTable';
+import { exportSvgToPngBase64 } from './graphExport';
 import { filterByFeatureCluster, listFeatureOptions } from './featureFocus';
 import { filterByProject, listProjectOptions, type ProjectOption } from './projectFilter';
 
@@ -86,6 +89,8 @@ const tableStatsEl = document.getElementById('tableStats') as HTMLParagraphEleme
 const filterInputs = Array.from(
   document.querySelectorAll<HTMLInputElement>('#dependencyTable .col-filter'),
 );
+const exportGraphBtn = document.getElementById('exportGraphBtn') as HTMLButtonElement;
+const exportTableBtn = document.getElementById('exportTableBtn') as HTMLButtonElement;
 
 viewSelect.addEventListener('change', () => {
   currentView = viewSelect.value;
@@ -112,6 +117,12 @@ searchInput.addEventListener('input', () => {
 
 tabGraph.addEventListener('click', () => setActivePanel('graph'));
 tabTable.addEventListener('click', () => setActivePanel('table'));
+exportGraphBtn.addEventListener('click', () => {
+  void handleExportGraphPng();
+});
+exportTableBtn.addEventListener('click', () => {
+  handleExportTable();
+});
 
 for (const input of filterInputs) {
   input.addEventListener('input', () => {
@@ -151,6 +162,8 @@ function setActivePanel(panel: 'graph' | 'table'): void {
   graphPanel.classList.toggle('hidden', panel !== 'graph');
   tablePanel.classList.toggle('hidden', panel !== 'table');
   searchInput.style.display = panel === 'graph' ? '' : 'none';
+  exportGraphBtn.classList.toggle('hidden', panel !== 'graph');
+  exportTableBtn.classList.toggle('hidden', panel !== 'table');
 }
 
 function getProjectOptions(): ProjectOption[] {
@@ -162,7 +175,7 @@ function render(): void {
   renderGraph();
 }
 
-function renderTable(): void {
+function getTableRowSets(): { all: DependencyRow[]; filtered: DependencyRow[] } {
   const projects = getProjectOptions();
   const { nodes, edges } = filterGraphData(false);
   const featureOptions = listFeatureOptions(fullGraph.nodes, currentProject, projects);
@@ -171,7 +184,11 @@ function renderTable(): void {
     ...columnFilters,
     project: currentProject ? '' : columnFilters.project,
   };
-  const filtered = filterDependencyRows(rows, effectiveFilters);
+  return { all: rows, filtered: filterDependencyRows(rows, effectiveFilters) };
+}
+
+function renderTable(): void {
+  const { all: rows, filtered } = getTableRowSets();
 
   tableBody.replaceChildren();
   for (const row of filtered) {
@@ -729,4 +746,89 @@ function dragEnded(event: d3.D3DragEvent<SVGGElement, GraphNode, GraphNode>, nod
   if (node.x != null && node.y != null) {
     restingPositions.set(node.id, { x: node.x, y: node.y });
   }
+}
+
+function handleExportTable(): void {
+  const { filtered } = getTableRowSets();
+  if (filtered.length === 0) {
+    vscode.postMessage({ type: 'exportEmpty', target: 'table' });
+    return;
+  }
+
+  vscode.postMessage({
+    type: 'exportTable',
+    rows: filtered.map(toExportRow),
+    suggestedFilename: buildDependenciesFilename(),
+  });
+}
+
+async function handleExportGraphPng(): Promise<void> {
+  const { nodes } = filterGraphData(true);
+  if (nodes.length === 0 || !svg) {
+    vscode.postMessage({ type: 'exportEmpty', target: 'graph' });
+    return;
+  }
+
+  exportGraphBtn.disabled = true;
+  try {
+    const svgElement = document.getElementById('graph') as SVGSVGElement | null;
+    if (!svgElement) {
+      vscode.postMessage({ type: 'exportEmpty', target: 'graph' });
+      return;
+    }
+
+    const pngBase64 = await exportSvgToPngBase64(svgElement);
+    if (!pngBase64) {
+      vscode.postMessage({ type: 'exportError', target: 'graph' });
+      return;
+    }
+
+    vscode.postMessage({
+      type: 'exportGraphPng',
+      pngBase64,
+      suggestedFilename: buildGraphPngFilename(),
+    });
+  } catch {
+    vscode.postMessage({ type: 'exportError', target: 'graph' });
+  } finally {
+    exportGraphBtn.disabled = false;
+  }
+}
+
+function buildDependenciesFilename(): string {
+  const projectLabel = currentProject ? projectSelect.selectedOptions[0]?.textContent ?? null : null;
+  return formatDependenciesFilename(projectLabel);
+}
+
+function buildGraphPngFilename(): string {
+  const featureLabel = currentFeature ? featureSelect.selectedOptions[0]?.textContent ?? null : null;
+  return formatGraphPngFilename(featureLabel);
+}
+
+function formatDependenciesFilename(projectLabel: string | null): string {
+  const segment = sanitizeSegment(projectLabel ?? 'all');
+  return `fluxloops-dependencies-${segment}-${formatDateStamp()}.xlsx`;
+}
+
+function formatGraphPngFilename(featureLabel: string | null): string {
+  const segment = sanitizeSegment(featureLabel ?? 'all');
+  return `fluxloops-graph-${segment}-${formatDateStamp()}.png`;
+}
+
+function sanitizeSegment(segment: string): string {
+  const cleaned = segment
+    .trim()
+    .replace(/[<>:"/\\|?*\x00-\x1f]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 80);
+  return cleaned || 'all';
+}
+
+function formatDateStamp(date: Date = new Date()): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }

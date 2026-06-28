@@ -3,6 +3,8 @@ import {
   buildDependencyRows,
   filterDependencyRows,
   EMPTY_COLUMN_FILTERS,
+  serializeExportRows,
+  toExportRow,
 } from '../src/webview/dependencyTable';
 
 describe('dependencyTable', () => {
@@ -47,6 +49,17 @@ describe('dependencyTable', () => {
     const filtered = filterDependencyRows(rows, { ...EMPTY_COLUMN_FILTERS, feature: 'Other' });
     expect(filtered).toHaveLength(1);
     expect(filtered[0].feature).toBe('OtherState');
+  });
+
+  it('serializes export rows without navigation metadata', () => {
+    const rows = buildDependencyRows(nodes, edges, featureOptions, [
+      { id: 'a.csproj', label: 'SampleApp' },
+      { id: 'b.csproj', label: 'Other' },
+    ]);
+    const exportRows = rows.map(toExportRow);
+    expect(serializeExportRows(exportRows)).toEqual(exportRows);
+    expect(exportRows[0]).not.toHaveProperty('line');
+    expect(exportRows[0]).not.toHaveProperty('fromId');
   });
 
   it('combines multiple column filters', () => {

@@ -32,6 +32,70 @@ export interface DependencyRow {
   toId: string;
 }
 
+export interface ExportRow {
+  project: string;
+  feature: string;
+  fromKind: string;
+  fromName: string;
+  relationship: string;
+  toKind: string;
+  toName: string;
+  filePath: string;
+}
+
+export function toExportRow(row: DependencyRow): ExportRow {
+  return {
+    project: row.project,
+    feature: row.feature,
+    fromKind: row.fromKind,
+    fromName: row.fromName,
+    relationship: row.relationship,
+    toKind: row.toKind,
+    toName: row.toName,
+    filePath: row.filePath,
+  };
+}
+
+export function serializeExportRows(rows: unknown): ExportRow[] | undefined {
+  if (!Array.isArray(rows)) {
+    return undefined;
+  }
+
+  const serialized: ExportRow[] = [];
+  for (const row of rows) {
+    if (!row || typeof row !== 'object') {
+      return undefined;
+    }
+
+    const candidate = row as Partial<ExportRow>;
+    if (
+      typeof candidate.project !== 'string'
+      || typeof candidate.feature !== 'string'
+      || typeof candidate.fromKind !== 'string'
+      || typeof candidate.fromName !== 'string'
+      || typeof candidate.relationship !== 'string'
+      || typeof candidate.toKind !== 'string'
+      || typeof candidate.toName !== 'string'
+      || typeof candidate.filePath !== 'string'
+    ) {
+      return undefined;
+    }
+
+    serialized.push({
+      project: candidate.project,
+      feature: candidate.feature,
+      fromKind: candidate.fromKind,
+      fromName: candidate.fromName,
+      relationship: candidate.relationship,
+      toKind: candidate.toKind,
+      toName: candidate.toName,
+      filePath: candidate.filePath,
+    });
+  }
+
+  return serialized;
+}
+
 export interface ColumnFilters {
   project: string;
   feature: string;

@@ -6,7 +6,7 @@ Backlog items scheduled for upcoming development. See [GitHub issues](https://gi
 
 ## 1. Export dependency table to Excel (`.xlsx`)
 
-**Status:** Planned  
+**Status:** Done (v0.2.0)  
 **Target:** v0.2.0  
 **Priority:** High
 
@@ -56,16 +56,16 @@ As a Fluxor developer reviewing dependencies, I want to export the dependency ta
 
 ### Acceptance criteria
 
-- [ ] Button visible on Table tab when graph has rows
-- [ ] Exported file opens in Excel with filters on header row
-- [ ] Exported rows match on-screen filtered table exactly
-- [ ] Empty/filtered-to-zero state shows a clear message (no empty file surprise)
+- [x] Button visible on Table tab when graph has rows
+- [x] Exported file opens in Excel with filters on header row
+- [x] Exported rows match on-screen filtered table exactly
+- [x] Empty/filtered-to-zero state shows a clear message (no empty file surprise)
 
 ---
 
 ## 2. Export D3 graph to PNG
 
-**Status:** Planned  
+**Status:** Done (v0.2.0)  
 **Target:** v0.2.0  
 **Priority:** High
 
@@ -98,10 +98,10 @@ As a Fluxor developer documenting architecture, I want to export the dependency 
 
 ### Acceptance criteria
 
-- [ ] Button visible on Graph tab when graph has nodes
-- [ ] PNG opens correctly in image viewer
-- [ ] Node colors, edge styles, and labels are readable
-- [ ] Export completes in &lt; 5s for typical project graphs (~200 nodes)
+- [x] Button visible on Graph tab when graph has nodes
+- [x] PNG opens correctly in image viewer
+- [x] Node colors, edge styles, and labels are readable
+- [x] Export completes in &lt; 5s for typical project graphs (~200 nodes)
 
 ---
 
