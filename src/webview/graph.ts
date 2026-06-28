@@ -790,7 +790,8 @@ async function handleExportGraphPng(): Promise<void> {
       pngBase64,
       suggestedFilename: buildGraphPngFilename(),
     });
-  } catch {
+  } catch (error) {
+    console.error('FluxLoops PNG export failed:', error);
     vscode.postMessage({ type: 'exportError', target: 'graph' });
   } finally {
     exportGraphBtn.disabled = false;
